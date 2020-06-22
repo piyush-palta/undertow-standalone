@@ -50,6 +50,7 @@ import org.wildfly.security.http.HttpAuthenticationException;
 import org.wildfly.security.http.HttpServerAuthenticationMechanismFactory;
 import org.wildfly.security.http.util.FilterServerMechanismFactory;
 import org.wildfly.security.http.util.SecurityProviderServerMechanismFactory;
+import org.wildfly.security.http.util.SocketAddressCallbackServerMechanismFactory;
 import org.wildfly.security.password.PasswordFactory;
 import org.wildfly.security.password.spec.ClearPasswordSpec;
 import org.wildfly.security.permission.PermissionVerifier;
@@ -121,7 +122,8 @@ public class HelloWorld {
 
     private static HttpAuthenticationFactory createHttpAuthenticationFactory(final SecurityDomain securityDomain) {
         HttpServerAuthenticationMechanismFactory providerFactory = new SecurityProviderServerMechanismFactory(() -> new Provider[] {elytronProvider});
-        HttpServerAuthenticationMechanismFactory httpServerMechanismFactory = new FilterServerMechanismFactory(providerFactory, true, "BASIC");
+        HttpServerAuthenticationMechanismFactory socketAddressFactory = new SocketAddressCallbackServerMechanismFactory(providerFactory);
+        HttpServerAuthenticationMechanismFactory httpServerMechanismFactory = new FilterServerMechanismFactory(socketAddressFactory, true, "BASIC");
 
         return HttpAuthenticationFactory.builder()
                 .setSecurityDomain(securityDomain)
