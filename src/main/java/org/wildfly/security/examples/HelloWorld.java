@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.net.InetAddress;
 
-
+import org.wildfly.security.handlers.AttributeDumpingHandler;
 import org.wildfly.elytron.web.undertow.server.ElytronContextAssociationHandler;
 import org.wildfly.elytron.web.undertow.server.ElytronRunAsHandler;
 import org.wildfly.security.WildFlyElytronProvider;
@@ -66,6 +66,8 @@ import io.undertow.util.Headers;
  *
  *
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
+ * @author <a href="mailto:piyush.palta@outlook.com">Piyush Palta</a>
+ *
  */
 public class HelloWorld {
 
@@ -79,6 +81,7 @@ public class HelloWorld {
                 .setHandler(wrap(new HttpHandler() {
 
                     public void handleRequest(final HttpServerExchange exchange) throws Exception {
+                        new RuntimeException().printStackTrace();
                         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, "text/plain");
                         exchange.getResponseSender().send("Hello " + securityDomain.getCurrentSecurityIdentity().getPrincipal().getName());
                     }
@@ -114,7 +117,7 @@ public class HelloWorld {
                 .setAuditEndpoint(SyslogAuditEndpoint.builder()
                         .setHostName("127.0.0.1")
                         .setServerAddress(localhost)
-                        .setPort(514)
+                        .setPort(1525)
                         .setTcp(true)
                         .build())
             .build();
@@ -148,7 +151,8 @@ public class HelloWorld {
 
         rootHandler = new AuthenticationCallHandler(rootHandler);
         rootHandler = new AuthenticationConstraintHandler(rootHandler);
-
+        rootHandler = new AttributeDumpingHandler(rootHandler);
+        
         return ElytronContextAssociationHandler.builder()
                 .setNext(rootHandler)
                 .setMechanismSupplier(() -> {
